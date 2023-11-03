@@ -7,3 +7,4 @@
 ## Todo
 
 - Configure team composition from the frontend rather than the code
+- Improve efficiency
