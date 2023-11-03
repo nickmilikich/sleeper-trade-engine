@@ -29,14 +29,15 @@ week = st.selectbox("Select the current week", range(1, 18))
 scoring_type = st.selectbox("Select scoring type", ["PPR", "Half PPR", "Standard"])
 
 # Add refresh button (accepts a new dummy variable)
-_ = st.button("Refresh")
+clicked = st.button("Calculate")
 
-# Get best trade options
-trade_options = get_trade_options(
-    league_id=league_id,
-    user_id=user_id,
-    week=week,
-    scoring_type=scoring_type,
-    league_users=league_users,
-)
-st.dataframe(trade_options)
+if clicked:
+    # Get best trade options
+    trade_options = get_trade_options(
+        league_id=league_id,
+        user_id=user_id,
+        week=week,
+        scoring_type=scoring_type,
+        league_users=league_users,
+    )
+    st.dataframe(trade_options)

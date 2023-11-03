@@ -50,7 +50,7 @@ def get_roster_data(
     """
     # Check for current data
     if f"{league_id}_{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/roster_data/"):
-        with open(f"data/roster_data/{datetime.now().strftime('%y%m%d')}.json") as file:
+        with open(f"data/roster_data/{league_id}_{datetime.now().strftime('%y%m%d')}.json") as file:
             return json.load(file)
 
     # Get raw data from API
@@ -91,7 +91,7 @@ def get_users(
     """
     # Check for current data
     if f"{league_id}_{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/users/"):
-        with open(f"data/users/{datetime.now().strftime('%y%m%d')}.json") as file:
+        with open(f"data/users/{league_id}_{datetime.now().strftime('%y%m%d')}.json") as file:
             return json.load(file)
     
     # Get raw data from API

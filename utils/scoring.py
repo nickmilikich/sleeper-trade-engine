@@ -7,6 +7,7 @@ def add_projected_scores(
     rosters: List[dict],
     projections: List[dict],
     all_players: dict,
+    free_agents: List[str],
 ) -> List[dict]:
     """Adds projected score for the remainder of the season as a key to a list of rosters
 
@@ -18,6 +19,8 @@ def add_projected_scores(
         List of player/week projections; keys week, player_id, proj_score
     all_players : dict
         Dictionary of all players in the league; structure {player_id: {position: str, name: str}}
+    free_agents : List[str]
+        List of player_id of free agents in the league
 
     Returns
     -------
@@ -28,7 +31,11 @@ def add_projected_scores(
         {
             "owner_id": roster["owner_id"],
             "players": roster["players"],
-            "proj_score": get_projected_score(roster["players"], projections, all_players)
+            "proj_score": get_projected_score(
+                players=roster["players"] + free_agents,
+                projections=projections,
+                all_players=all_players,
+            )
         }
         for roster in rosters
     ]
@@ -41,7 +48,7 @@ def get_projected_score(
     projections: List[dict],
     all_players: List[dict],
 ) -> float:
-    """Gets the projected score for a given team of players
+    """Gets the projected score for a given team of players for the remainder of the season
 
     Parameters
     ----------
@@ -57,8 +64,10 @@ def get_projected_score(
     float
         The total projected rest-of-season score for the available roster of players
     """
-    # Filter to relevant roster of players
+    
+    # Filter projections to relevant roster of players
     projections = [projection for projection in projections if projection["player_id"] in players]
+    
     # Add position for each player
     projections = [
         {
@@ -70,11 +79,13 @@ def get_projected_score(
         }
         for projection in projections
     ]
+
     # For each week, get projected team score
     projections_by_week = [
         get_one_projected_score([projection for projection in projections if projection["week"] == week])
         for week in set([i["week"] for i in projections])
     ]
+
     # Return sum of week scores
     return sum(projections_by_week)
 
@@ -96,6 +107,9 @@ def get_one_projected_score(
     score = 0.0
     projections_remaining = copy.deepcopy(projections)
 
+    # Sort by highest scoring
+    projections_remaining = sorted(projections_remaining, key=lambda x: x["proj_score"], reverse=True)
+
     # Loop through roster positions
     for position, count in CONFIG["rosters"]["single_positions"].items():
         for _ in range(count):
@@ -103,10 +117,10 @@ def get_one_projected_score(
             relevant_players = [
                 projection
                 for projection in projections_remaining
-                if projection["position"] == position and projection["proj_score"] is not None
+                if projection["position"] == position
             ]
-            # Sort by the highest scoring
-            relevant_players = sorted(relevant_players, key=lambda x: x["proj_score"], reverse=True)
+            # # Sort by the highest scoring
+            # relevant_players = sorted(relevant_players, key=lambda x: x["proj_score"], reverse=True)
             # For the highest available, add the score and remove the player
             if len(relevant_players) > 0:
                 score += relevant_players[0]["proj_score"]
@@ -119,10 +133,10 @@ def get_one_projected_score(
             relevant_players = [
                 projection
                 for projection in projections_remaining
-                if projection["position"] in position and projection["proj_score"] is not None
+                if projection["position"] in position
             ]
-            # Sort by the highest scoring
-            relevant_players = sorted(relevant_players, key=lambda x: x["proj_score"], reverse=True)
+            # # Sort by the highest scoring
+            # relevant_players = sorted(relevant_players, key=lambda x: x["proj_score"], reverse=True)
             # For the highest available, add the score and remove the player
             if len(relevant_players) > 0:
                 score += relevant_players[0]["proj_score"]
