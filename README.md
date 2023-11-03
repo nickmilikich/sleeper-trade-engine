@@ -8,3 +8,4 @@
 
 - Configure team composition from the frontend rather than the code
 - Improve efficiency
+- Make free agents available when calculating projected scores
