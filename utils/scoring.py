@@ -6,7 +6,7 @@ from typing import List
 def add_projected_scores(
     rosters: List[dict],
     projections: List[dict],
-    all_players: List[dict],
+    all_players: dict,
 ) -> List[dict]:
     """Adds projected score for the remainder of the season as a key to a list of rosters
 
@@ -16,8 +16,8 @@ def add_projected_scores(
         List of rosters; keys owner_id and players (list of player_id)
     projections : List[dict]
         List of player/week projections; keys week, player_id, proj_score
-    all_players : List[dict]
-        List of all players in the league; structure [{player_id: {position: str, name: str}}]
+    all_players : dict
+        Dictionary of all players in the league; structure {player_id: {position: str, name: str}}
 
     Returns
     -------
@@ -49,8 +49,8 @@ def get_projected_score(
         List of players available for a fantasy team
     projections : List[dict]
         List of player/week projections; keys week, player_id, proj_score
-    all_players : List[dict]
-        List of all players in the league; structure [{player_id: {position: str, name: str}}]
+    all_players : dict
+        Dictionary of all players in the league; structure {player_id: {position: str, name: str}}
 
     Returns
     -------
@@ -95,7 +95,7 @@ def get_one_projected_score(
     """
     score = 0.0
     projections_remaining = copy.deepcopy(projections)
-    
+
     # Loop through roster positions
     for position, count in CONFIG["rosters"]["single_positions"].items():
         for _ in range(count):
