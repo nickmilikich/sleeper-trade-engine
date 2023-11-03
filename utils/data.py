@@ -1,4 +1,5 @@
 import ast
+import json
 import os
 
 from datetime import datetime
@@ -47,6 +48,11 @@ def get_roster_data(
     List[dict]
         The roster data, with one entry for each team; keys owner_id, players (list[str])
     """
+    # Check for current data
+    if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/roster_data/"):
+        with open(f"data/roster_data/{datetime.now().strftime('%y%m%d')}.json") as file:
+            return json.load(file)
+
     # Get raw data from API
     rosters = os.popen(f'curl "https://api.sleeper.app/v1/league/{league_id}/rosters"').read()
     rosters = clean(rosters)
@@ -60,6 +66,10 @@ def get_roster_data(
         }
         for roster in rosters
     ]
+
+    # Dump data
+    with open(f"data/roster_data/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
+        json.dump(rosters, file)
 
     return rosters
 
@@ -79,12 +89,21 @@ def get_users(
     List[dict]
         List of users; keys user_id, display_name
     """
+    # Check for current data
+    if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/users/"):
+        with open(f"data/users/{datetime.now().strftime('%y%m%d')}.json") as file:
+            return json.load(file)
+    
     # Get raw data from API
     users = os.popen(f'curl "https://api.sleeper.app/v1/league/{league_id}/users"').read()
     users = clean(users)
     users = ast.literal_eval(users)
     # Get display names and user_id
     users = [{"user_id": user["user_id"], "display_name": user["display_name"]} for user in users]
+
+    # Dump data
+    with open(f"data/users/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
+        json.dump(users, file)
 
     return users
 
@@ -107,6 +126,10 @@ def get_all_player_projections(
     List[dict]
         List of projections for each week/player; keys week, player_id, proj_score
     """
+    # Check for current data
+    if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/projections/"):
+        with open(f"data/projections/{datetime.now().strftime('%y%m%d')}.json") as file:
+            return json.load(file)
 
     # Get data field name given scoring type
     score_field_name = {
@@ -136,6 +159,10 @@ def get_all_player_projections(
         for proj in all_player_projections
     ]
 
+    # Dump data
+    with open(f"data/projections/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
+        json.dump(all_player_projections, file)
+
     return all_player_projections
 
 
@@ -147,6 +174,11 @@ def get_all_players() -> List[dict]:
     List[dict]
         List of all NFL players; structure {player_id: {position: str, name: str}}
     """
+    # Check for current data
+    if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/players/"):
+        with open(f"data/players/{datetime.now().strftime('%y%m%d')}.json") as file:
+            return json.load(file)
+
     # Get raw data from API
     players = os.popen('curl "https://api.sleeper.app/v1/players/nfl"').read()
     players = clean(players)
@@ -159,5 +191,9 @@ def get_all_players() -> List[dict]:
         }
         for player_id, stats in players.items()
     }
+
+    # Dump data
+    with open(f"data/players/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
+        json.dump(players, file)
 
     return players
