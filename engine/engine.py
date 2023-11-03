@@ -95,6 +95,7 @@ def get_trade_options(
                 # Loop through players in that other roster
                 other_combos = get_combos(other_roster["players"], max_group=CONFIG["settings"]["max_group"])
                 for other_players in other_combos:
+                    st.markdown(f"Evaluating {', '.join([all_players[p]['name'] for p in players])} for {', '.join([all_players[p]['name'] for p in other_players])}")
                     # Get proposed rosters with the trade
                     proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
                     proposed_other_roster = (set(other_roster["players"]) - set(other_players)).union(set(players))
@@ -105,8 +106,6 @@ def get_trade_options(
                     if _initial_checks(
                         proposed_user_roster=proposed_user_roster,
                         proposed_other_roster=proposed_other_roster,
-                        players=players,
-                        other_players=other_players,
                         all_players=all_players,
                     ):
                         # Get projected scores with the trade
@@ -146,8 +145,6 @@ def get_trade_options(
 def _initial_checks(
     proposed_user_roster: List[str],
     proposed_other_roster: List[str],
-    players: List[str],
-    other_players: List[str],
     all_players: dict,
 ) -> bool:
     # Make sure the proposed rosters are complete
