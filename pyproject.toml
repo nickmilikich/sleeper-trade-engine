@@ -10,6 +10,7 @@ python = "^3.11"
 sleeper = "^1.7.0"
 streamlit = "^1.28.0"
 envyaml = "^1.10.211231"
+watchdog = "^3.0.0"
 
 
 [build-system]
