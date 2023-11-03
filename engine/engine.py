@@ -1,6 +1,8 @@
 import pandas as pd
 
+from config import CONFIG
 from typing import List
+from utils.combinatorics import get_combos
 from utils.data import get_roster_data, get_all_player_projections, get_all_players
 from utils.scoring import add_projected_scores, get_projected_score
 
@@ -52,14 +54,14 @@ def get_trade_options(
 
     trade_options = []
     # Loop through players on owner's roster
-    for player in user_roster["players"]:
+    for players in get_combos(user_roster["players"], max_group=CONFIG["settings"]["max_group"]):
         # Loop through other rosters
         for other_roster in rosters:
             # Loop through players in that other roster
-            for other_player in other_roster["players"]:
+            for other_players in get_combos(other_roster["players"], max_group=CONFIG["settings"]["max_group"]):
                 # Get proposed rosters with the trade
-                proposed_user_roster = (set(user_roster["players"]) - {player}).union({other_player})
-                proposed_other_roster = (set(other_roster["players"]) - {other_player}).union({player})
+                proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
+                proposed_other_roster = (set(other_roster["players"]) - set(other_players)).union(set(players))
                 # Save original projected scores
                 user_orig_projection = user_roster["proj_score"]
                 other_orig_projection = other_roster["proj_score"]
@@ -80,9 +82,9 @@ def get_trade_options(
                     user_display_name = [u['display_name'] for u in league_users if u['user_id'] == user_id][0]
                     other_display_name = [u["display_name"] for u in league_users if u["user_id"] == other_roster["owner_id"]][0]
                     trade_options.append({
-                        "Sends": f"{all_players[player]['name']} ({all_players[player]['position']})",
+                        "Sends": ", ".join([f"{all_players[player]['name']} ({all_players[player]['position']})" for player in players]),
                         "To": other_display_name,
-                        "Receives": f"{all_players[other_player]['name']} ({all_players[other_player]['position']})",
+                        "Receives": ", ".join([f"{all_players[other_player]['name']} ({all_players[other_player]['position']})" for other_player in other_players]),
                         f"{user_display_name} Previous Projection": round(user_orig_projection / (18 - week), 2),
                         f"{user_display_name} Trade Projection": round(user_proposed_projection / (18 - week), 2),
                         "Other Previous Projection": round(other_orig_projection / (18 - week), 2),

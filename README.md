@@ -7,4 +7,3 @@
 ## Todo
 
 - Configure team composition from the frontend rather than the code
-- Multi-player trades
