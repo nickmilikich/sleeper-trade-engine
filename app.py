@@ -6,6 +6,14 @@ from utils.data import get_users
 
 st.title("Trade engine for Sleeper fantasy football leagues")
 
+st.markdown("This app is designed to recommend trades for your Sleeper fantasy league.\
+    First, paste your League ID (when you log in, the league ID can be found\
+    in the URL: `sleeper.com/leagues/{league_id}/matchup`).\
+    Then select your display name from within that league, the current week\
+    (the trade engine works using projected scores between the current week\
+    and the end of the season), and the scoring your league uses.\
+    Wait a few minutes for calculation, and see the recommended trades.")
+
 # Get league ID
 league_id = st.text_input("League ID")
 

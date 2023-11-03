@@ -35,7 +35,7 @@ def clean(s: str) -> str:
 def get_roster_data(
     league_id: str,
 ) -> List[dict]:
-    """Returns a dictionary of roster data for a given league
+    """Returns a list of roster data for a given league
 
     Parameters
     ----------
@@ -45,7 +45,7 @@ def get_roster_data(
     Returns
     -------
     List[dict]
-        The roster data, with one entry for each team
+        The roster data, with one entry for each team; keys owner_id, players (list[str])
     """
     # Get raw data from API
     rosters = os.popen(f'curl "https://api.sleeper.app/v1/league/{league_id}/rosters"').read()
@@ -67,6 +67,18 @@ def get_roster_data(
 def get_users(
     league_id: str,
 ) -> List[dict]:
+    """Returns a list of users in a given league
+
+    Parameters
+    ----------
+    league_id : str
+        The league id number
+
+    Returns
+    -------
+    List[dict]
+        List of users; keys user_id, display_name
+    """
     # Get raw data from API
     users = os.popen(f'curl "https://api.sleeper.app/v1/league/{league_id}/users"').read()
     users = clean(users)
@@ -80,7 +92,21 @@ def get_users(
 def get_all_player_projections(
     week: int,
     scoring_type: str,
-) -> Tuple[dict]:
+) -> List[dict]:
+    """Returns a list of projections for all weeks/players (for weeks remaining in the season)
+
+    Parameters
+    ----------
+    week : int
+        Week number of the season
+    scoring_type : str
+        League scoring type; one of "PPR", "Half PPR", or "Standard"
+
+    Returns
+    -------
+    List[dict]
+        List of projections for each week/player; keys week, player_id, proj_score
+    """
 
     # Get data field name given scoring type
     score_field_name = {
@@ -110,14 +136,17 @@ def get_all_player_projections(
         for proj in all_player_projections
     ]
 
-    all_player_projections_week = [
-        proj for proj in all_player_projections if proj["week"] == week
-    ]
-
-    return all_player_projections_week, all_player_projections
+    return all_player_projections
 
 
 def get_all_players() -> List[dict]:
+    """Returns a list of all NFL players; used for accessing player names and positions from player_id
+
+    Returns
+    -------
+    List[dict]
+        List of all NFL players; structure {player_id: {position: str, name: str}}
+    """
     # Get raw data from API
     players = os.popen('curl "https://api.sleeper.app/v1/players/nfl"').read()
     players = clean(players)
