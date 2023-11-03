@@ -9,3 +9,5 @@ rosters:
   flex_positions:
     ("WR", "RB", "TE"): 1
     ("WR", "RB", "TE", "QB"): 1
+settings:
+  max_group: 2
