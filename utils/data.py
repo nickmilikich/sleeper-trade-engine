@@ -49,7 +49,7 @@ def get_roster_data(
         The roster data, with one entry for each team; keys owner_id, players (list[str])
     """
     # Check for current data
-    if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/roster_data/"):
+    if f"{league_id}_{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/roster_data/"):
         with open(f"data/roster_data/{datetime.now().strftime('%y%m%d')}.json") as file:
             return json.load(file)
 
@@ -68,7 +68,7 @@ def get_roster_data(
     ]
 
     # Dump data
-    with open(f"data/roster_data/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
+    with open(f"data/roster_data/{league_id}_{datetime.now().strftime('%y%m%d')}.json", "w") as file:
         json.dump(rosters, file)
 
     return rosters
@@ -90,7 +90,7 @@ def get_users(
         List of users; keys user_id, display_name
     """
     # Check for current data
-    if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/users/"):
+    if f"{league_id}_{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/users/"):
         with open(f"data/users/{datetime.now().strftime('%y%m%d')}.json") as file:
             return json.load(file)
     
@@ -102,7 +102,7 @@ def get_users(
     users = [{"user_id": user["user_id"], "display_name": user["display_name"]} for user in users]
 
     # Dump data
-    with open(f"data/users/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
+    with open(f"data/users/{league_id}_{datetime.now().strftime('%y%m%d')}.json", "w") as file:
         json.dump(users, file)
 
     return users
@@ -166,13 +166,13 @@ def get_all_player_projections(
     return all_player_projections
 
 
-def get_all_players() -> List[dict]:
+def get_all_players() -> dict:
     """Returns a list of all NFL players; used for accessing player names and positions from player_id
 
     Returns
     -------
-    List[dict]
-        List of all NFL players; structure {player_id: {position: str, name: str}}
+    dict
+        Dictionary of all NFL players; structure {player_id: {position: str, name: str}}
     """
     # Check for current data
     if f"{datetime.now().strftime('%y%m%d')}.json" in os.listdir("data/players/"):
