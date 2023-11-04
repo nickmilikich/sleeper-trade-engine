@@ -92,18 +92,15 @@ def get_trade_options(
     trade_options = []
     # Loop through players on owner's roster
     combos = get_combos(user_roster["players"], max_group=max_group)
-    total_combos = len(combos) ** 2
-    counter = 0
     progress_bar = st.progress(0)
-    for players in combos:
+    for i, players in enumerate(combos):
         # Loop through other rosters
-        for other_roster in rosters:    
+        for j, other_roster in enumerate(rosters):
             # Loop through players in that other roster
             other_combos = get_combos(other_roster["players"], max_group=max_group)
-            for other_players in other_combos:
-                counter += 1
+            for k, other_players in enumerate(other_combos):
                 progress_bar.progress(
-                    counter / total_combos,
+                    i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
                     text=f"Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
                 )
                 # Get proposed rosters with the trade
