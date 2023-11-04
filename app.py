@@ -28,6 +28,12 @@ week = st.selectbox("Select the current week", range(1, 18))
 # Get scoring type
 scoring_type = st.selectbox("Select scoring type", ["PPR", "Half PPR", "Standard"])
 
+# Get scoring type
+st.markdown("The max trade size affects compute time *heavily*.\
+    For example, trades of size 1 computes in about 30 minutes,\
+    while trades of up to size 2 computes in several hours.")
+max_group = st.number_input("Max trade size", 1)
+
 # Add refresh button (accepts a new dummy variable)
 clicked = st.button("Calculate")
 
@@ -39,6 +45,7 @@ if clicked:
         week=week,
         scoring_type=scoring_type,
         league_users=league_users,
+        max_group=max_group,
     )
     st.dataframe(trade_options)
     clicked = False

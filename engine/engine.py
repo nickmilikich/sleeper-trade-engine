@@ -16,6 +16,7 @@ def get_trade_options(
     week: int,
     scoring_type: str,
     league_users: List[dict],
+    max_group: int,
 ) -> pd.DataFrame:
     """Gets a data frame of the best trade options for the user given the situation
 
@@ -31,6 +32,8 @@ def get_trade_options(
         The league's scoring method; one of "PPR", "Half PPR", "Standard"
     league_users : List[dict]
         Information about the users in the league; keys user_id and display_name
+    max_group : int
+        The maximum size of a trade group (e.g. if 2, trades can be of 1 or 2 players per team)
 
     Returns
     -------
@@ -88,7 +91,7 @@ def get_trade_options(
 
     trade_options = []
     # Loop through players on owner's roster
-    combos = get_combos(user_roster["players"], max_group=CONFIG["settings"]["max_group"])
+    combos = get_combos(user_roster["players"], max_group=max_group)
     total_combos = len(combos) ** 2
     counter = 0
     progress_bar = st.progress(0)
@@ -96,7 +99,7 @@ def get_trade_options(
         # Loop through other rosters
         for other_roster in rosters:    
             # Loop through players in that other roster
-            other_combos = get_combos(other_roster["players"], max_group=CONFIG["settings"]["max_group"])
+            other_combos = get_combos(other_roster["players"], max_group=max_group)
             for other_players in other_combos:
                 counter += 1
                 progress_bar.progress(
