@@ -50,8 +50,8 @@ def get_trade_options(
     all_players = get_all_players()
 
     # Get roster data
-    if f"{league_id}_{datetime.now().strftime('%y%m%d')}_w_projections.json" in os.listdir("data/roster_data/"):
-        with open(f"data/roster_data/{league_id}_{datetime.now().strftime('%y%m%d')}_w_projections.json") as file:
+    if f"{league_id}_{datetime.now().strftime('%y%m%d')}_projections_wk{week}.json" in os.listdir("data/roster_data/"):
+        with open(f"data/roster_data/{league_id}_{datetime.now().strftime('%y%m%d')}_projections_wk{week}.json") as file:
             rosters = json.load(file)
         # Get free agents
         free_agents = [
@@ -60,23 +60,24 @@ def get_trade_options(
             ]) and any([projection["proj_score"] > 0 for projection in projections_season if projection["player_id"] == player_id])
         ]
     else:
-        rosters = get_roster_data(league_id)
-        # Get free agents
-        free_agents = [
-            player_id for player_id in all_players.keys() if not any([
-                player_id in roster["players"] for roster in rosters
-            ])
-        ]
-        # Add projected scores to rosters
-        rosters = add_projected_scores(
-            rosters=rosters,
-            projections=projections_season,
-            all_players=all_players,
-            free_agents=free_agents,
-        )
-        # Dump data
-        with open(f"data/roster_data/{league_id}_{datetime.now().strftime('%y%m%d')}_w_projections.json", "w") as file:
-            json.dump(rosters, file)
+        with st.status("Calculating league projected scoring"):
+            rosters = get_roster_data(league_id)
+            # Get free agents
+            free_agents = [
+                player_id for player_id in all_players.keys() if not any([
+                    player_id in roster["players"] for roster in rosters
+                ])
+            ]
+            # Add projected scores to rosters
+            rosters = add_projected_scores(
+                rosters=rosters,
+                projections=projections_season,
+                all_players=all_players,
+                free_agents=free_agents,
+            )
+            # Dump data
+            with open(f"data/roster_data/{league_id}_{datetime.now().strftime('%y%m%d')}_projections_wk{week}.json", "w") as file:
+                json.dump(rosters, file)
 
     # Get user roster and other rosters
     user_roster = [roster for roster in rosters if roster["owner_id"] == user_id][0]
@@ -88,14 +89,14 @@ def get_trade_options(
     trade_options = []
     # Loop through players on owner's roster
     combos = get_combos(user_roster["players"], max_group=CONFIG["settings"]["max_group"])
-    for players in combos:
-        # Loop through other rosters
-        for other_roster in rosters:
-            with st.status(f"Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]}"):
+    with st.status(f"Evaluating trades..."):
+        for players in combos:
+            # Loop through other rosters
+            for other_roster in rosters:    
                 # Loop through players in that other roster
                 other_combos = get_combos(other_roster["players"], max_group=CONFIG["settings"]["max_group"])
                 for other_players in other_combos:
-                    st.markdown(f"Evaluating {', '.join([all_players[p]['name'] for p in players])} for {', '.join([all_players[p]['name'] for p in other_players])}")
+                    st.markdown(f"Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}")
                     # Get proposed rosters with the trade
                     proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
                     proposed_other_roster = (set(other_roster["players"]) - set(other_players)).union(set(players))

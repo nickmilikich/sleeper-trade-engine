@@ -41,3 +41,4 @@ if clicked:
         league_users=league_users,
     )
     st.dataframe(trade_options)
+    clicked = False
