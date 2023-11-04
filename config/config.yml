@@ -10,4 +10,4 @@ rosters:
     ("WR", "RB", "TE"): 1
     ("WR", "RB", "TE", "QB"): 1
 settings:
-  max_group: 1
+  max_group: 2

@@ -89,50 +89,56 @@ def get_trade_options(
     trade_options = []
     # Loop through players on owner's roster
     combos = get_combos(user_roster["players"], max_group=CONFIG["settings"]["max_group"])
-    with st.status(f"Evaluating trades..."):
-        for players in combos:
-            # Loop through other rosters
-            for other_roster in rosters:    
-                # Loop through players in that other roster
-                other_combos = get_combos(other_roster["players"], max_group=CONFIG["settings"]["max_group"])
-                for other_players in other_combos:
-                    st.markdown(f"Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}")
-                    # Get proposed rosters with the trade
-                    proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
-                    proposed_other_roster = (set(other_roster["players"]) - set(other_players)).union(set(players))
-                    # Save original projected scores
-                    user_orig_projection = user_roster["proj_score"]
-                    other_orig_projection = other_roster["proj_score"]
-                    # Check for obvious problems with the proposed trade to short-cut the projection calculations
-                    if _initial_checks(
-                        proposed_user_roster=proposed_user_roster,
-                        proposed_other_roster=proposed_other_roster,
+    total_combos = len(combos) ** 2
+    counter = 0
+    progress_bar = st.progress(0)
+    for players in combos:
+        # Loop through other rosters
+        for other_roster in rosters:    
+            # Loop through players in that other roster
+            other_combos = get_combos(other_roster["players"], max_group=CONFIG["settings"]["max_group"])
+            for other_players in other_combos:
+                counter += 1
+                progress_bar.progress(
+                    counter / total_combos,
+                    text=f"Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
+                )
+                # Get proposed rosters with the trade
+                proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
+                proposed_other_roster = (set(other_roster["players"]) - set(other_players)).union(set(players))
+                # Save original projected scores
+                user_orig_projection = user_roster["proj_score"]
+                other_orig_projection = other_roster["proj_score"]
+                # Check for obvious problems with the proposed trade to short-cut the projection calculations
+                if _initial_checks(
+                    proposed_user_roster=proposed_user_roster,
+                    proposed_other_roster=proposed_other_roster,
+                    all_players=all_players,
+                ):
+                    # Get projected scores with the trade
+                    user_proposed_projection = get_projected_score(
+                        players=list(proposed_user_roster) + free_agents,
+                        projections=projections_season,
                         all_players=all_players,
-                    ):
-                        # Get projected scores with the trade
-                        user_proposed_projection = get_projected_score(
-                            players=list(proposed_user_roster) + free_agents,
-                            projections=projections_season,
-                            all_players=all_players,
-                        )
-                        other_proposed_projection = get_projected_score(
-                            players=list(proposed_other_roster) + free_agents,
-                            projections=projections_season,
-                            all_players=all_players,
-                        )
-                        # If the trade is beneficial for the user and not harmful for the other
-                        if user_proposed_projection > user_orig_projection and other_proposed_projection >= other_orig_projection:
-                            # Save display names for other user involved in the trade
-                            other_display_name = [u["display_name"] for u in league_users if u["user_id"] == other_roster["owner_id"]][0]
-                            trade_options.append({
-                                "Sends": ", ".join([f"{all_players[player]['name']} ({all_players[player]['position']})" for player in players]),
-                                "To": other_display_name,
-                                "Receives": ", ".join([f"{all_players[other_player]['name']} ({all_players[other_player]['position']})" for other_player in other_players]),
-                                f"{user_display_name} Previous Projection": round(user_orig_projection / (18 - week), 2),
-                                f"{user_display_name} Trade Projection": round(user_proposed_projection / (18 - week), 2),
-                                "Other Previous Projection": round(other_orig_projection / (18 - week), 2),
-                                "Other Trade Projection": round(other_proposed_projection / (18 - week), 2),
-                            })
+                    )
+                    other_proposed_projection = get_projected_score(
+                        players=list(proposed_other_roster) + free_agents,
+                        projections=projections_season,
+                        all_players=all_players,
+                    )
+                    # If the trade is beneficial for the user and not harmful for the other
+                    if user_proposed_projection > user_orig_projection and other_proposed_projection >= other_orig_projection:
+                        # Save display names for other user involved in the trade
+                        other_display_name = [u["display_name"] for u in league_users if u["user_id"] == other_roster["owner_id"]][0]
+                        trade_options.append({
+                            "Sends": ", ".join([f"{all_players[player]['name']} ({all_players[player]['position']})" for player in players]),
+                            "To": other_display_name,
+                            "Receives": ", ".join([f"{all_players[other_player]['name']} ({all_players[other_player]['position']})" for other_player in other_players]),
+                            f"{user_display_name} Previous Projection": round(user_orig_projection / (18 - week), 2),
+                            f"{user_display_name} Trade Projection": round(user_proposed_projection / (18 - week), 2),
+                            "Other Previous Projection": round(other_orig_projection / (18 - week), 2),
+                            "Other Trade Projection": round(other_proposed_projection / (18 - week), 2),
+                        })
 
     # Sort the trade options by the size of the advantage it gives the user
     trade_options = pd.DataFrame(trade_options)
