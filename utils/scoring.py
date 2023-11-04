@@ -1,3 +1,4 @@
+import ast
 import copy
 
 from config import CONFIG
@@ -141,5 +142,34 @@ def get_one_projected_score(
             if len(relevant_players) > 0:
                 score += relevant_players[0]["proj_score"]
                 projections_remaining = [projection for projection in projections_remaining if projection["player_id"] != relevant_players[0]["player_id"]]
+
+    # # Restructure projection {position: {player_id: proj_score}}
+    # projections_dict = dict()
+    # for position in set([projection["position"] for projection in projections_remaining]):
+    #     projections_dict[position] = dict()
+    # for projection in projections_remaining:
+    #     projections_dict[projection["position"]][projection["player_id"]] = projection["proj_score"]
+
+    # # Loop through roster positions
+    # for position, count in CONFIG["rosters"]["single_positions"].items():
+    #     for _ in range(count):
+    #         # Get ID of highest scoring player, add it to score, and delete them
+    #         if position in projections_dict.keys():
+    #             max_player = max(projections_dict[position], key=projections_dict[position].get)
+    #             score += projections_dict[position][max_player]
+    #             del projections_dict[position][max_player]
+
+    # # Loop through roster positions
+    # for position, count in CONFIG["rosters"]["flex_positions"].items():
+    #     for _ in range(count):
+    #         # Get ID of highest scoring player, add it to score, and delete them
+    #         projections_dict_flex = dict()
+    #         for p in ast.literal_eval(position):
+    #             if p in projections_dict.keys():
+    #                 projections_dict_flex = {**projections_dict_flex, **projections_dict[p]}
+    #         max_player = max(projections_dict_flex, key=projections_dict_flex.get)
+    #         score += projections_dict_flex[max_player]
+    #         player_position = [k for k, v in projections_dict.items() if max_player in v.keys()][0]
+    #         del projections_dict[player_position][max_player]
 
     return score
