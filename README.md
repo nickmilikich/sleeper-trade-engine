@@ -7,5 +7,4 @@
 ## Todo
 
 - Configure team composition from the frontend rather than the code
-- Improve efficiency
-- Make free agents available when calculating projected scores
+- Improve efficiency (it's much better now but not great)
