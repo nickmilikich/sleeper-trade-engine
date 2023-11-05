@@ -30,8 +30,8 @@ scoring_type = st.selectbox("Select scoring type", ["PPR", "Half PPR", "Standard
 
 # Get scoring type
 st.markdown("The max trade size affects compute time *heavily*.\
-    For example, trades of size 1 computes in about 30 minutes,\
-    while trades of up to size 2 computes in several hours.")
+    For example, trades of size 1 compute in about 30 minutes,\
+    while trades of up to size 2 compute in several days.")
 max_group = st.number_input("Max trade size", 1)
 
 # Add refresh button (accepts a new dummy variable)
