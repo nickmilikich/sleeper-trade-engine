@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from sleeper.api.unofficial import UPlayerAPIClient
 from sleeper.enum import Sport
-from typing import List, Tuple
+from typing import List
 
 def clean(s: str) -> str:
     """Cleans a string returned from a sleeper api call
@@ -140,7 +140,7 @@ def get_all_player_projections(
 
     # Get projections for the rest of the season
     all_player_projections = []
-    for w in range(week, 18):
+    for w in range(1, 18):
         all_player_projections.extend(
             UPlayerAPIClient.get_all_player_projections(
                 sport=Sport.NFL,
@@ -159,11 +159,23 @@ def get_all_player_projections(
         for proj in all_player_projections
     ]
 
+    # Restructure {player_id: [{week, proj_score}]}
+    all_player_projections_restr = {
+        player_id: []
+        for player_id in set([projection["player_id"] for projection in all_player_projections])
+    }
+    for projection in all_player_projections:
+        if projection["proj_score"] is not None and projection["proj_score"] > 0:
+            all_player_projections_restr[projection["player_id"]].append({
+                "week": projection["week"],
+                "proj_score": projection["proj_score"],
+            })
+
     # Dump data
     with open(f"data/projections/{datetime.now().strftime('%y%m%d')}.json", "w") as file:
-        json.dump(all_player_projections, file)
+        json.dump(all_player_projections_restr, file)
 
-    return all_player_projections
+    return all_player_projections_restr
 
 
 def get_all_players() -> dict:
