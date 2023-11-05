@@ -8,3 +8,4 @@
 ## Todo
 
 - Configure team composition from the frontend rather than the code
+- Improve frontend experience (errors before selections are made)
