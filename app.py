@@ -15,7 +15,7 @@ st.markdown("This app is designed to recommend trades for your Sleeper fantasy l
     Note: Results may be strange for current (games in-progress) weeks.\n\
     Note: The max trade size affects compute time *heavily*.\
     For example, trades of size 1 compute in about 5 minutes (depending on the week),\
-    while trades of up to size 2 compute in several days.")
+    while trades of up to size 2 take up to a day to compute.")
 
 # Get league ID
 league_id = st.text_input("League ID")
