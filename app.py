@@ -1,4 +1,3 @@
-import pandas as pd
 import streamlit as st
 
 from engine.engine import get_trade_options
@@ -12,7 +11,11 @@ st.markdown("This app is designed to recommend trades for your Sleeper fantasy l
     Then select your display name from within that league, the current week\
     (the trade engine works using projected scores between the current week\
     and the end of the season), and the scoring your league uses.\
-    Wait a few minutes for calculation, and see the recommended trades.")
+    Wait a few minutes for calculation, and see the recommended trades.\n\
+    Note: Results may be strange for current (games in-progress) weeks.\n\
+    Note: The max trade size affects compute time *heavily*.\
+    For example, trades of size 1 compute in about 5 minutes (depending on the week),\
+    while trades of up to size 2 compute in several days.")
 
 # Get league ID
 league_id = st.text_input("League ID")
@@ -29,9 +32,6 @@ week = st.selectbox("Select the current week", range(1, 18))
 scoring_type = st.selectbox("Select scoring type", ["PPR", "Half PPR", "Standard"])
 
 # Get scoring type
-st.markdown("The max trade size affects compute time *heavily*.\
-    For example, trades of size 1 compute in about 30 minutes,\
-    while trades of up to size 2 compute in several days.")
 max_group = st.number_input("Max trade size", 1)
 
 # Add refresh button (accepts a new dummy variable)
