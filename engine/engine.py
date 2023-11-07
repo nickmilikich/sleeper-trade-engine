@@ -67,7 +67,7 @@ def get_trade_options(
     # Drop projections for irrelevant positions
     projections_season = {
         k: v for k, v in projections_season.items()
-        if v["position"].isin(CONFIG["rosters"]["single_positions"].keys())
+        if any([week["position"] in CONFIG["rosters"]["single_positions"] for week in v])
     }
 
     # Get roster data
