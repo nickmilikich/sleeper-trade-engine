@@ -70,11 +70,7 @@ def get_trade_options(
     # Drop projections for irrelevant / excluded positions
     projections_season = {
         k: v for k, v in projections_season.items()
-        if any([(
-            week["position"] in CONFIG["rosters"]["single_positions"]
-        ) and not (
-            week["position"] in exclude_positions
-        ) for week in v])
+        if any([week["position"] in CONFIG["rosters"]["single_positions"] for week in v])
     }
 
     # Get roster data
@@ -101,13 +97,13 @@ def get_trade_options(
 
     trade_options = []
     # Loop through players on owner's roster
-    combos = get_combos(user_roster["players"], max_group=max_group)
+    combos = get_combos([p for p in user_roster["players"] if not all_players[p]["position"] in exclude_positions], max_group=max_group)
     progress_bar = st.progress(0)
     for i, players in enumerate(combos):
         # Loop through other rosters
         for j, other_roster in enumerate(rosters):
             # Loop through players in that other roster
-            other_combos = get_combos(other_roster["players"], max_group=max_group)
+            other_combos = get_combos([p for p in other_roster["players"] if not all_players[p]["position"] in exclude_positions], max_group=max_group)
             for k, other_players in enumerate(other_combos):
                 progress_bar.progress(
                     i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
