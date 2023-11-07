@@ -1,5 +1,6 @@
 import streamlit as st
 
+from config import CONFIG
 from engine.engine import get_trade_options
 from utils.data import get_users
 
@@ -15,7 +16,9 @@ st.markdown("This app is designed to recommend trades for your Sleeper fantasy l
     Note: Results may be strange for current (games in-progress) weeks.\n\
     Note: The max trade size affects compute time *heavily*.\
     For example, trades of size 1 compute in about 5 minutes (depending on the week),\
-    while trades of up to size 2 take several hours or more to compute.")
+    while trades of up to size 2 take several hours or more to compute.\
+    Dropping some positions from analysis, for example K or DEF, can speed up\
+    computation time.")
 
 # Get league ID
 league_id = st.text_input("League ID")
@@ -34,6 +37,9 @@ scoring_type = st.selectbox("Select scoring type", ["PPR", "Half PPR", "Standard
 # Get scoring type
 max_group = st.number_input("Max trade size", 1)
 
+# Select any positions to exclude from analysis
+exclude_positions = st.multiselect("Select any positions to exclude from analysis", CONFIG["rosters"]["single_positions"])
+
 # Add refresh button (accepts a new dummy variable)
 clicked = st.button("Calculate")
 
@@ -46,6 +52,7 @@ if clicked:
         scoring_type=scoring_type,
         league_users=league_users,
         max_group=max_group,
+        exclude_positions=exclude_positions,
     )
     st.dataframe(trade_options)
     clicked = False

@@ -14,6 +14,7 @@ def get_trade_options(
     scoring_type: str,
     league_users: List[dict],
     max_group: int,
+    exclude_positions: List[str] = [],
 ) -> pd.DataFrame:
     """Gets a data frame of the best trade options for the user given the situation
 
@@ -31,6 +32,8 @@ def get_trade_options(
         Information about the users in the league; keys user_id and display_name
     max_group : int
         The maximum size of a trade group (e.g. if 2, trades can be of 1 or 2 players per team)
+    exclude_positions : List[str], optional
+        Positions to exclude from consideration for trades, by default []
 
     Returns
     -------
@@ -64,7 +67,7 @@ def get_trade_options(
         for player_id, projections in projections_season.items()
     }
 
-    # Drop projections for irrelevant positions
+    # Drop projections for irrelevant / excluded positions
     projections_season = {
         k: v for k, v in projections_season.items()
         if any([week["position"] in CONFIG["rosters"]["single_positions"] for week in v])
@@ -94,13 +97,13 @@ def get_trade_options(
 
     trade_options = []
     # Loop through players on owner's roster
-    combos = get_combos(user_roster["players"], max_group=max_group)
+    combos = get_combos([p for p in user_roster["players"] if not all_players[p]["position"] in exclude_positions], max_group=max_group)
     progress_bar = st.progress(0)
     for i, players in enumerate(combos):
         # Loop through other rosters
         for j, other_roster in enumerate(rosters):
             # Loop through players in that other roster
-            other_combos = get_combos(other_roster["players"], max_group=max_group)
+            other_combos = get_combos([p for p in other_roster["players"] if not all_players[p]["position"] in exclude_positions], max_group=max_group)
             for k, other_players in enumerate(other_combos):
                 progress_bar.progress(
                     i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
