@@ -54,5 +54,6 @@ if clicked:
         max_group=max_group,
         exclude_positions=exclude_positions,
     )
+    st.download_button("Download this data", trade_options)
     st.dataframe(trade_options)
     clicked = False
