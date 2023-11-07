@@ -1,6 +1,7 @@
 import streamlit as st
 
 from config import CONFIG
+from datetime import datetime
 from engine.engine import get_trade_options
 from utils.data import get_users
 
@@ -53,6 +54,11 @@ if clicked:
         league_users=league_users,
         max_group=max_group,
         exclude_positions=exclude_positions,
+    )
+    st.download_button(
+        label="Download this data",
+        data=trade_options.to_csv().encode("utf-8"),
+        file_name=f"{datetime.now().strftime('%y%m%d')}_report.csv",
     )
     st.dataframe(trade_options)
     clicked = False
