@@ -1,11 +1,13 @@
 import pandas as pd
 import streamlit as st
+import time
 
 from config import CONFIG
 from typing import List
 from utils.combinatorics import get_combos
 from utils.data import get_roster_data, get_all_player_projections, get_all_players
 from utils.scoring import add_projected_scores, get_projected_score
+from utils.timing import get_formatted_time
 
 def get_trade_options(
     league_id: str,
@@ -40,6 +42,8 @@ def get_trade_options(
     pd.DataFrame
         Data frame describing the best trade options for the user
     """
+
+    t0 = time.time()
 
     # Get player projections
     projections_season = get_all_player_projections(week=week, scoring_type=scoring_type)
@@ -107,7 +111,7 @@ def get_trade_options(
             for k, other_players in enumerate(other_combos):
                 progress_bar.progress(
                     i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
-                    text=f"Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
+                    text=f"({get_formatted_time(time.time() - t0)}) Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
                 )
                 # Get proposed rosters with the trade
                 proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
