@@ -14,6 +14,7 @@ def get_trade_options(
     scoring_type: str,
     league_users: List[dict],
     max_group: int,
+    exclude_positions: List[str] = [],
 ) -> pd.DataFrame:
     """Gets a data frame of the best trade options for the user given the situation
 
@@ -31,6 +32,8 @@ def get_trade_options(
         Information about the users in the league; keys user_id and display_name
     max_group : int
         The maximum size of a trade group (e.g. if 2, trades can be of 1 or 2 players per team)
+    exclude_positions : List[str], optional
+        Positions to exclude from consideration for trades, by default []
 
     Returns
     -------
@@ -64,10 +67,14 @@ def get_trade_options(
         for player_id, projections in projections_season.items()
     }
 
-    # Drop projections for irrelevant positions
+    # Drop projections for irrelevant / excluded positions
     projections_season = {
         k: v for k, v in projections_season.items()
-        if any([week["position"] in CONFIG["rosters"]["single_positions"] for week in v])
+        if any([(
+            week["position"] in CONFIG["rosters"]["single_positions"]
+        ) and not (
+            week["position"] in exclude_positions
+        ) for week in v])
     }
 
     # Get roster data
