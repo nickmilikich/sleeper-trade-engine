@@ -64,6 +64,12 @@ def get_trade_options(
         for player_id, projections in projections_season.items()
     }
 
+    # Drop projections for irrelevant positions
+    projections_season = {
+        k: v for k, v in projections_season.items()
+        if any([week["position"] in CONFIG["rosters"]["single_positions"] for week in v])
+    }
+
     # Get roster data
     rosters = get_roster_data(league_id)
     # Get free agents
