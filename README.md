@@ -3,7 +3,10 @@
 ## Usage
 
 - Clone the repo and navigate to the root
-- `poetry run streamlit run app.py`
+- Ensure you're running python3.11+
+- If poetry isn't installed, `pip install poetry`
+- `poetry install` to install the dependencies
+- `poetry run streamlit run app.py` to run the applet
 
 ## Todo
 
