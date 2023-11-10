@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 from config import CONFIG
@@ -57,12 +58,15 @@ with col1:
                 max_group=max_group,
                 exclude_positions=exclude_positions,
             )
-            st.download_button(
-                label="Download this data",
-                data=trade_options.to_csv().encode("utf-8"),
-                file_name=f"{datetime.now().strftime('%y%m%d')}_report.csv",
-            )
-            st.dataframe(trade_options)
+            st.session_state["trade_options"] = trade_options
+    print(st.session_state.to_dict())
+    trade_options = st.session_state.get("trade_options", pd.DataFrame({}))
+    st.download_button(
+        label="Download this data",
+        data=trade_options.to_csv().encode("utf-8"),
+        file_name=f"{datetime.now().strftime('%y%m%d')}_report.csv",
+    )
+    st.dataframe(trade_options)
 
 with col2:
     with st.form("Input scenario"):
