@@ -150,3 +150,100 @@ def get_trade_options(
         trade_options = trade_options.drop(columns="diff")
 
     return trade_options
+
+def evaluate_scenario(
+    league_id: str,
+    user_id: str,
+    week: int,
+    scoring_type: str,
+    league_users: List[dict],
+    user_display_name: str,
+):
+
+    # Get player projections
+    projections_season = get_all_player_projections(week=week, scoring_type=scoring_type)
+    # Filter to current/future projections
+    projections_season = {
+        player_id: [
+            projection for projection in projections_season[player_id] if projection["week"] >= week
+        ]
+        for player_id in projections_season.keys()
+    }
+    
+    # Get all players
+    all_players = get_all_players()
+
+    # Add position to projections
+    projections_season = {
+        player_id: [
+            {
+                "week": projection["week"],
+                "proj_score": 0 if projection["proj_score"] is None else projection["proj_score"],
+                "position": all_players[player_id]["position"]
+            }
+            for projection in projections
+        ]
+        for player_id, projections in projections_season.items()
+    }
+
+    # Drop projections for irrelevant / excluded positions
+    projections_season = {
+        k: v for k, v in projections_season.items()
+        if any([week["position"] in CONFIG["rosters"]["single_positions"] for week in v])
+    }
+
+    # Get roster data
+    rosters = get_roster_data(league_id)
+    # Get free agents
+    free_agents = [
+        player_id for player_id in all_players.keys() if not any([
+            player_id in roster["players"] for roster in rosters
+        ])
+    ]
+    # Add projected scores to rosters
+    rosters = add_projected_scores(
+        rosters=rosters,
+        projections=projections_season,
+        free_agents=free_agents,
+    )
+
+    # Get player to trade with
+    other_display_name = st.selectbox("Select user to trade with", [user["display_name"] for user in league_users])
+    other_id = [user["user_id"] for user in league_users if user["display_name"] == other_display_name][0]
+
+    # Get user roster and other roster
+    user_roster = [roster for roster in rosters if roster["owner_id"] == user_id][0]
+    other_roster = [roster for roster in rosters if roster["owner_id"] == other_id][0]
+
+    # Select players to trade
+    user_sends = st.multiselect(f"{user_display_name} sends", [all_players[p]["name"] for p in user_roster["players"]])
+    other_sends = st.multiselect(f"{other_display_name} sends", [all_players[p]["name"] for p in other_roster["players"]])
+    user_sends = [p for p in user_roster["players"] if all_players[p]["name"] in user_sends]
+    other_sends = [p for p in other_roster["players"] if all_players[p]["name"] in other_sends]
+
+    # Evaluate scenario
+
+    # Get proposed rosters with the trade
+    proposed_user_roster = (set(user_roster["players"]) - set(user_sends)).union(set(other_sends))
+    proposed_other_roster = (set(other_roster["players"]) - set(other_sends)).union(set(user_sends))
+    # Save original projected scores
+    user_orig_projection = user_roster["proj_score"] / (18 - week)
+    other_orig_projection = other_roster["proj_score"] / (18 - week)
+    # Get projected scores with the trade
+    user_proposed_projection = get_projected_score(
+        players=list(proposed_user_roster) + free_agents,
+        projections=projections_season,
+    ) / (18 - week)
+    other_proposed_projection = get_projected_score(
+        players=list(proposed_other_roster) + free_agents,
+        projections=projections_season,
+    ) / (18 - week)
+
+    print(f"user_sends {user_sends}")
+
+    # Return result
+    return {
+        "user": (user_orig_projection, user_proposed_projection),
+        "other": (other_orig_projection, other_proposed_projection),
+        "other_display_name": other_display_name,
+    }
