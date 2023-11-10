@@ -154,7 +154,7 @@ def get_all_player_projections(
         {
             "week": proj.week,
             "player_id": proj.player_id,
-            "proj_score": eval(f"proj.stats.{score_field_name}"),
+            "proj_score": getattr(proj.stats, score_field_name),
         }
         for proj in all_player_projections
     ]
