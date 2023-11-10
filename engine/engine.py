@@ -239,8 +239,6 @@ def evaluate_scenario(
         projections=projections_season,
     ) / (18 - week)
 
-    print(f"user_sends {user_sends}")
-
     # Return result
     return {
         "user": (user_orig_projection, user_proposed_projection),
