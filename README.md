@@ -10,7 +10,12 @@
 
 ## Todo
 
-- Configure team composition from the frontend rather than the code
+Features
+- Configure team composition from the frontend rather than the code (or even read directly from the APIs)
 - Improve frontend experience (errors before selections are made)
 - Automate emails with trade reports
 - Allow flex in a trade being slightly unfavorable to the opponent
+- Generate trades and save to file from command line rather than GUI
+
+Technical
+- Modularize the `engine.py` functions a little
