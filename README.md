@@ -15,6 +15,7 @@ Features
 - Improve frontend experience (errors before selections are made)
 - Automate emails with trade reports
 - Allow flex in a trade being slightly unfavorable to the opponent
+- Generate trades and save to file from command line rather than GUI
 
 Technical
 - Document this branch
