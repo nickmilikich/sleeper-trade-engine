@@ -159,6 +159,32 @@ def evaluate_scenario(
     league_users: List[dict],
     user_display_name: str,
 ):
+    """_summary_
+
+    Parameters
+    ----------
+    league_id : str
+        The league id number
+    user_id : str
+        The user id number
+    week : int
+        The current week of the season; used for calculating projected scores for remaining games
+    scoring_type : str
+        The league's scoring method; one of "PPR", "Half PPR", "Standard"
+    league_users : List[dict]
+        Information about the users in the league; keys user_id and display_name
+    user_display_name : str
+        The user's display name
+
+    Returns
+    -------
+    dict
+        Format {
+            "user": Tuple of (original projected score, post-trade projected score)
+            "other": Tuple of (original projected score, post-trade projected score)
+            "other_display_name": Other user's display name
+        }
+    """
 
     # Get player projections
     projections_season = get_all_player_projections(week=week, scoring_type=scoring_type)

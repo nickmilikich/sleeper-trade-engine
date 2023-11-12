@@ -18,5 +18,4 @@ Features
 - Generate trades and save to file from command line rather than GUI
 
 Technical
-- Document this branch
 - Modularize the `engine.py` functions a little
