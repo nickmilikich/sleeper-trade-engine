@@ -6,7 +6,21 @@
 - Ensure you're running python3.11+
 - If poetry isn't installed, `pip install poetry`
 - `poetry install` to install the dependencies
+
+Run with GUI interface
 - `poetry run streamlit run app.py` to run the applet
+
+Generating and saving options data frame from command line
+- `poetry run python -m generate_trades` + other arguments
+    - Required
+        - `-d` / `--dest` output destination path
+        - `-l` / `--league_id` league ID
+        - `-u` / `--username` user display name
+        - `-w` / `--week` week
+        - `-s` / `--scoring_type` scoring type
+    - Optional
+        - `--max_group` max trade group size
+        - `--exclude` positions to exclude (e.g. `'["K", "DEF"]'`)
 
 ## Todo
 
@@ -15,7 +29,6 @@ Features
 - Improve frontend experience (errors before selections are made)
 - Automate emails with trade reports
 - Allow flex in a trade being slightly unfavorable to the opponent
-- Generate trades and save to file from command line rather than GUI
 
 Technical
 - Modularize the `engine.py` functions a little

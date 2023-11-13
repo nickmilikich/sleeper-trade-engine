@@ -1,11 +1,12 @@
 import pandas as pd
 import streamlit as st
+import sys
 import time
 
 from config import CONFIG
 from typing import List
 from utils.combinatorics import get_combos
-from utils.data import get_roster_data, get_all_player_projections, get_all_players
+from utils.data import get_roster_data, get_all_player_projections, get_all_players, get_users
 from utils.scoring import add_projected_scores, get_projected_score
 from utils.timing import get_formatted_time
 
@@ -14,9 +15,10 @@ def get_trade_options(
     user_id: str,
     week: int,
     scoring_type: str,
-    league_users: List[dict],
     max_group: int,
+    league_users: List[dict] = None,
     exclude_positions: List[str] = [],
+    status: str = "streamlit",
 ) -> pd.DataFrame:
     """Gets a data frame of the best trade options for the user given the situation
 
@@ -36,12 +38,24 @@ def get_trade_options(
         The maximum size of a trade group (e.g. if 2, trades can be of 1 or 2 players per team)
     exclude_positions : List[str], optional
         Positions to exclude from consideration for trades, by default []
+    status : str, optional
+        Destination to output status (streamlit or terminal), by default streamlit
 
     Returns
     -------
     pd.DataFrame
         Data frame describing the best trade options for the user
     """
+
+    # Process arguments
+    if league_users is None:
+        league_users = get_users(league_id)
+    if not (user_id in [user["user_id"] for user in league_users]): # If user not in league, must have passed in display name, so get actual ID
+        try:
+            user_id = [user["user_id"] for user in league_users if user["display_name"] == user_id][0]
+        except:
+            assert 0 == 1, "Error: Invalid user name / ID"
+    
 
     t0 = time.time()
 
@@ -102,17 +116,22 @@ def get_trade_options(
     trade_options = []
     # Loop through players on owner's roster
     combos = get_combos([p for p in user_roster["players"] if not all_players[p]["position"] in exclude_positions], max_group=max_group)
-    progress_bar = st.progress(0)
+    if status == "streamlit":
+        progress_bar = st.progress(0)
     for i, players in enumerate(combos):
         # Loop through other rosters
         for j, other_roster in enumerate(rosters):
             # Loop through players in that other roster
             other_combos = get_combos([p for p in other_roster["players"] if not all_players[p]["position"] in exclude_positions], max_group=max_group)
             for k, other_players in enumerate(other_combos):
-                progress_bar.progress(
-                    i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
-                    text=f"({get_formatted_time(time.time() - t0)}) ({round((i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos)) * 100, 2)}%) Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
-                )
+                if status == "streamlit":
+                    progress_bar.progress(
+                        i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
+                        text=f"({get_formatted_time(time.time() - t0)}) ({round((i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos)) * 100, 2)}%) Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
+                    )
+                elif status == "terminal":
+                    sys.stdout.write("\033[K") # Clear to the end of line
+                    print(f"({get_formatted_time(time.time() - t0)}) ({round((i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos)) * 100, 2)}%) Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}", end="\r")
                 # Get proposed rosters with the trade
                 proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
                 proposed_other_roster = (set(other_roster["players"]) - set(other_players)).union(set(players))
