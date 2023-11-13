@@ -111,7 +111,7 @@ def get_trade_options(
             for k, other_players in enumerate(other_combos):
                 progress_bar.progress(
                     i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos),
-                    text=f"({get_formatted_time(time.time() - t0)}) ({round(i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos) * 100, 2)}%) Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
+                    text=f"({get_formatted_time(time.time() - t0)}) ({(round(i / len(combos) + j / len(combos) / len(rosters) + k / len(combos) / len(rosters) / len(other_combos)) * 100, 2)}%) Evaluating {', '.join([all_players[p]['name'] for p in players])} to {[l['display_name'] for l in league_users if l['user_id'] == other_roster['owner_id']][0]} for {', '.join([all_players[p]['name'] for p in other_players])}",
                 )
                 # Get proposed rosters with the trade
                 proposed_user_roster = (set(user_roster["players"]) - set(players)).union(set(other_players))
