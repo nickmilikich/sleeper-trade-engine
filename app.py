@@ -54,8 +54,8 @@ with col1:
                 user_id=user_id,
                 week=week,
                 scoring_type=scoring_type,
-                league_users=league_users,
                 max_group=max_group,
+                league_users=league_users,
                 exclude_positions=exclude_positions,
             )
             st.session_state["trade_options"] = trade_options
