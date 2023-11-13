@@ -2,19 +2,16 @@
 
 ## Usage
 
-Running with GUI interface
 - Clone the repo and navigate to the root
 - Ensure you're running python3.11+
 - If poetry isn't installed, `pip install poetry`
 - `poetry install` to install the dependencies
+
+Run with GUI interface
 - `poetry run streamlit run app.py` to run the applet
 
 Generating and saving options data frame from command line
-- Clone the repo and navigate to the root
-- Ensure you're running python3.11+
-- If poetry isn't installed, `pip install poetry`
-- `poetry install` to install the dependencies
-- `poetry run python -m generate_trades`
+- `poetry run python -m generate_trades` + other arguments
     - Required
         - `-d` / `--dest` output destination path
         - `-l` / `--league_id` league ID
