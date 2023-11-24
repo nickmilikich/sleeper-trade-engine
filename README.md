@@ -29,6 +29,8 @@ Features
 - Improve frontend experience (errors before selections are made)
 - Automate emails with trade reports
 - Allow flex in a trade being slightly unfavorable to the opponent
+- Read current week from projections by default rather than selecting
+- Allow user to configure trade sort order (benefit to user, mutual benefit factor, etc.)
 
 Technical
 - Modularize the `engine.py` functions a little
