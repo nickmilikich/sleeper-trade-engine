@@ -32,6 +32,7 @@ Features
 - Read current week from projections by default rather than selecting
 - Allow user to configure trade sort order (benefit to user, mutual benefit factor, etc.)
 - Restrict trade calculations to specific user(s)
+- Customize scoring (I'm doing a league-specific plug for QB's)
 
 Technical
 - Modularize the `engine.py` functions a little

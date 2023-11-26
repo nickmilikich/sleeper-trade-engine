@@ -155,6 +155,44 @@ def get_all_player_projections(
             "week": proj.week,
             "player_id": proj.player_id,
             "proj_score": getattr(proj.stats, score_field_name),
+            "position": str(proj.player.fantasy_positions),
+            # passing yards
+            "pass_yd": 0 if proj.stats.pass_yd is None else proj.stats.pass_yd,
+            # passing td
+            "pass_td": 0 if proj.stats.pass_td is None else proj.stats.pass_td,
+            # 2-pt conversion
+            "pass_2pt": 0 if proj.stats.pass_2pt is None else proj.stats.pass_2pt,
+            # Pass intercepted
+            "pass_int": 0 if proj.stats.pass_int is None else proj.stats.pass_int,
+            # Rushing yards
+            "rush_yd": 0 if proj.stats.rush_yd is None else proj.stats.rush_yd,
+            # Rushing TD
+            "rush_td": 0 if proj.stats.rush_td is None else proj.stats.rush_td,
+            # 2-pt rushing
+            "rush_2pt": 0 if proj.stats.rush_2pt is None else proj.stats.rush_2pt,
+            # Fumble lost
+            "fum_lost": 0 if proj.stats.fum_lost is None else proj.stats.fum_lost,
+        }
+        for proj in all_player_projections
+    ]
+
+    # Custom QB scoring
+    all_player_projections = [
+        {
+            "week": proj["week"],
+            "player_id": proj["player_id"],
+            "proj_score": (
+                0.04 * proj["pass_yd"] +
+                4 * proj["pass_td"] +
+                2 * proj["pass_2pt"] +
+                -2 * proj["pass_int"] +
+                0.1 * proj["rush_yd"] +
+                6 * proj["rush_td"] +
+                2 * proj["rush_2pt"] +
+                -2 * proj["fum_lost"]
+                if "QB" in proj["position"]
+                else proj["proj_score"]
+            ),
         }
         for proj in all_player_projections
     ]
