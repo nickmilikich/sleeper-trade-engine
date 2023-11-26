@@ -1,6 +1,4 @@
 import ast
-import copy
-import numpy as np
 
 from config import CONFIG
 from typing import List
@@ -9,7 +7,6 @@ def add_projected_scores(
     rosters: List[dict],
     projections: dict,
     free_agents: List[str],
-    all_players,
 ) -> List[dict]:
     """Adds projected score for the remainder of the season as a key to a list of rosters
 
@@ -34,7 +31,6 @@ def add_projected_scores(
             "proj_score": get_projected_score(
                 players=roster["players"] + free_agents,
                 projections=projections,
-                all_players=all_players,
             )
         }
         for roster in rosters
@@ -46,7 +42,6 @@ def add_projected_scores(
 def get_projected_score(
     players: List[str],
     projections: dict,
-    all_players,
 ) -> float:
     """Gets the projected score for a given team of players for the remainder of the season
 
@@ -62,8 +57,6 @@ def get_projected_score(
     float
         The total projected rest-of-season score for the available roster of players
     """
-    
-    all_projections = copy.deepcopy(projections)
 
     # Filter projections to relevant roster of players
     projections = {
@@ -84,7 +77,7 @@ def get_projected_score(
 
     # For each week, get projected team score
     projections_by_week = [
-        get_one_projected_score(projections_by_week[week], week=week, projections=all_projections, all_players=all_players)
+        get_one_projected_score(projections_by_week[week])
         for week in projections_by_week.keys()
     ]
 
@@ -93,9 +86,6 @@ def get_projected_score(
 
 def get_one_projected_score(
     projections_dict: dict,
-    week,
-    projections,
-    all_players,
 ) -> float:
     """Gets the projected score for a given roster of players for one week
 
@@ -122,22 +112,6 @@ def get_one_projected_score(
                 curr_score = max(projections_dict[position])
                 score += curr_score
                 projections_dict[position].remove(curr_score)
-
-                relevant_projections = {
-                    player: [
-                        proj for proj in projections[player]
-                        if proj["week"] == week
-                        and proj["proj_score"] == curr_score
-                    ]
-                    for player in projections.keys()
-                    if all_players[player]["position"] == position
-                }
-                relevant_projections = {
-                    player: projs
-                    for player, projs in relevant_projections.items()
-                    if len(projs) > 0
-                }
-                print(f"Week {week} {[all_players[p]['name'] for p in relevant_projections.keys()]} ({curr_score})")
             except:
                 pass
 
@@ -151,22 +125,4 @@ def get_one_projected_score(
             score += curr_score
             projections_dict[[p for p in ast.literal_eval(position) if curr_score in projections_dict.get(p, [])][0]].remove(curr_score)
             
-            relevant_projections = {
-                player: [
-                    proj for proj in projections[player]
-                    if proj["week"] == week
-                    and proj["proj_score"] == curr_score
-                ]
-                for player in projections.keys()
-                if all_players[player]["position"] in ast.literal_eval(position)
-            }
-            relevant_projections = {
-                player: projs
-                for player, projs in relevant_projections.items()
-                if len(projs) > 0
-            }
-            print(f"Week {week} {[all_players[p]['name'] for p in relevant_projections.keys()]} ({curr_score})")
-
-    # print(f"Projected score for {projections_dict}: {score}")
-
     return score

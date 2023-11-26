@@ -104,7 +104,6 @@ def get_trade_options(
         rosters=rosters,
         projections=projections_season,
         free_agents=free_agents,
-        all_players=all_players,
     )
 
     # Get user roster and other rosters
