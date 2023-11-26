@@ -275,12 +275,10 @@ def evaluate_scenario(
     user_orig_projection = user_roster["proj_score"] / (18 - week)
     other_orig_projection = other_roster["proj_score"] / (18 - week)
     # Get projected scores with the trade
-    print(f"Calculating projection for {user_display_name}")
     user_proposed_projection = get_projected_score(
         players=list(proposed_user_roster) + free_agents,
         projections=projections_season,
     ) / (18 - week)
-    print(f"Calculating projection for {other_display_name}")
     other_proposed_projection = get_projected_score(
         players=list(proposed_other_roster) + free_agents,
         projections=projections_season,
