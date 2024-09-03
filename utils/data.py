@@ -1,6 +1,7 @@
 import ast
 import json
 import os
+import subprocess
 
 from datetime import datetime
 from sleeper.api.unofficial import UPlayerAPIClient
@@ -108,6 +109,34 @@ def get_users(
     return users
 
 
+def _get_all_player_projections_week(
+    year: int,
+    week: int,
+    recursive_depth: int = 0,
+) -> list[dict]:
+
+    if recursive_depth > 10:
+        raise ValueError("Max retry exceeded in _get_all_player_projections_week")
+    try:
+        output = subprocess.run(
+            f"curl https://sleeper.com/projections/nfl/{year}/{week}?season_type=regular",
+            shell=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        processed_output = json.loads(output)
+        print(f"Downloaded projections year {year} week {week}")
+        return processed_output
+    except:
+        print(f"Warning: retrying projections download for year {year} week {week}")
+        return _get_all_player_projections_week(
+            year=year,
+            week=week,
+            recursive_depth=recursive_depth + 1,
+        )
+
+
+
 def get_all_player_projections(
     week: int,
     scoring_type: str,
@@ -142,9 +171,13 @@ def get_all_player_projections(
     all_player_projections = []
     for w in range(1, 18):
         all_player_projections.extend(
-            UPlayerAPIClient.get_all_player_projections(
-                sport=Sport.NFL,
-                season=datetime.now().year,
+            # UPlayerAPIClient.get_all_player_projections(
+            #     sport=Sport.NFL,
+            #     season=datetime.now().year,
+            #     week=w,
+            # )
+            _get_all_player_projections_week(
+                year=datetime.now().year,
                 week=w,
             )
         )
@@ -152,26 +185,47 @@ def get_all_player_projections(
     # Select relevant data
     all_player_projections = [
         {
-            "week": proj.week,
-            "player_id": proj.player_id,
-            "proj_score": getattr(proj.stats, score_field_name),
-            "position": str(proj.player.fantasy_positions),
+            # "week": proj.week,
+            # "player_id": proj.player_id,
+            # "proj_score": getattr(proj.stats, score_field_name),
+            # "position": str(proj.player.fantasy_positions),
+            # # passing yards
+            # "pass_yd": 0 if proj.stats.pass_yd is None else proj.stats.pass_yd,
+            # # passing td
+            # "pass_td": 0 if proj.stats.pass_td is None else proj.stats.pass_td,
+            # # 2-pt conversion
+            # "pass_2pt": 0 if proj.stats.pass_2pt is None else proj.stats.pass_2pt,
+            # # Pass intercepted
+            # "pass_int": 0 if proj.stats.pass_int is None else proj.stats.pass_int,
+            # # Rushing yards
+            # "rush_yd": 0 if proj.stats.rush_yd is None else proj.stats.rush_yd,
+            # # Rushing TD
+            # "rush_td": 0 if proj.stats.rush_td is None else proj.stats.rush_td,
+            # # 2-pt rushing
+            # "rush_2pt": 0 if proj.stats.rush_2pt is None else proj.stats.rush_2pt,
+            # # Fumble lost
+            # "fum_lost": 0 if proj.stats.fum_lost is None else proj.stats.fum_lost,
+
+            "week": proj["week"],
+            "player_id": proj["player_id"],
+            "proj_score": proj["stats"].get(score_field_name, 0),
+            "position": str(proj["player"]["fantasy_positions"]),
             # passing yards
-            "pass_yd": 0 if proj.stats.pass_yd is None else proj.stats.pass_yd,
+            "pass_yd": proj["stats"].get("pass_yd", 0),
             # passing td
-            "pass_td": 0 if proj.stats.pass_td is None else proj.stats.pass_td,
+            "pass_td": proj["stats"].get("pass_td", 0),
             # 2-pt conversion
-            "pass_2pt": 0 if proj.stats.pass_2pt is None else proj.stats.pass_2pt,
+            "pass_2pt": proj["stats"].get("pass_2pt", 0),
             # Pass intercepted
-            "pass_int": 0 if proj.stats.pass_int is None else proj.stats.pass_int,
+            "pass_int": proj["stats"].get("pass_int", 0),
             # Rushing yards
-            "rush_yd": 0 if proj.stats.rush_yd is None else proj.stats.rush_yd,
+            "rush_yd": proj["stats"].get("rush_yd", 0),
             # Rushing TD
-            "rush_td": 0 if proj.stats.rush_td is None else proj.stats.rush_td,
+            "rush_td": proj["stats"].get("rush_td", 0),
             # 2-pt rushing
-            "rush_2pt": 0 if proj.stats.rush_2pt is None else proj.stats.rush_2pt,
+            "rush_2pt": proj["stats"].get("rush_2pt", 0),
             # Fumble lost
-            "fum_lost": 0 if proj.stats.fum_lost is None else proj.stats.fum_lost,
+            "fum_lost": proj["stats"].get("fum_lost", 0),
         }
         for proj in all_player_projections
     ]
