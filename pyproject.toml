@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-sleeper = "^1.7.0"
+sleeper = "^1.7.3"
 streamlit = "^1.28.0"
 envyaml = "^1.10.211231"
 watchdog = "^3.0.0"

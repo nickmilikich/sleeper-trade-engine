@@ -57,7 +57,7 @@ def get_projected_score(
     float
         The total projected rest-of-season score for the available roster of players
     """
-    
+
     # Filter projections to relevant roster of players
     projections = {
         player_id: projections.get(player_id, []) for player_id in players
@@ -101,6 +101,10 @@ def get_one_projected_score(
     """
     score = 0.0
     
+    # print(f"all_players.keys() {len(all_players.keys())}")
+    # print(f"projections.keys() {len(projections.keys())}")
+    # print(f"overlap {len(set(all_players.keys()).intersection(set(projections.keys())))}")
+
     # Loop through roster positions
     for position, count in CONFIG["rosters"]["single_positions"].items():
         for _ in range(count):
@@ -120,7 +124,5 @@ def get_one_projected_score(
             curr_score = max(curr_scores, default=0)
             score += curr_score
             projections_dict[[p for p in ast.literal_eval(position) if curr_score in projections_dict.get(p, [])][0]].remove(curr_score)
-
-    # print(f"Projected score for {projections_dict}: {score}")
-
+            
     return score
